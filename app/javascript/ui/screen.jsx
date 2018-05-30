@@ -17,12 +17,12 @@ const ExpressionInput = Input.extend`
   height: 30px;
   font-size: 12px;
   font-weight: bold;
-  color: ${ colors.darkBg };
+  color: ${ colors.darkText };
 `
 
 const ResultInput = Input.extend`
   height: 50px;
-  color: ${ colors.text };
+  color: ${ colors.lightText };
   font-weight: lighter;
   font-size: 30px;
 `
@@ -33,7 +33,7 @@ class UnstyledScreen extends Component {
     return (
       <div className={className}>
         <ExpressionInput value={expression} />
-        <ResultInput value={result} readOnly />
+        <ResultInput value={result} />
       </div>
     )
   }
