@@ -7,7 +7,9 @@
     "prop-types": "^15.6.1",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
-    "react_ujs": "^2.4.4"
+    "react_ujs": "^2.4.4",
+    "styled-components": "^3.3.0",
+    "typeface-orbitron": "^0.0.54"
   },
   "devDependencies": {
     "webpack-dev-server": "2.11.2"
