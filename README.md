@@ -1,24 +1,14 @@
-# README
+# React/Rails Calculator
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is a calculator built with Rails, webpacker and react-rails. It saves recent calculations to local storage and allows the user to choose whether to evaluate the expressions in the frontend or backend.
 
-Things you may want to cover:
+You can visit [this link](https://react-rails-calculator.herokuapp.com/) to try the app in production (Give it a chance to load, it's running on a free Heroku dyno).
 
-* Ruby version
 
-* System dependencies
+## To run it locally:
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+```sh
+$ cd react-rails-app
+$ bundle && yarn
+$ foreman start -f Procfile.dev -p 3000
+```
