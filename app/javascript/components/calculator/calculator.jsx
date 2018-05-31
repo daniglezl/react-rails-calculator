@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import RecentList from '../recent_list/recent_list'
 import { getEvalExpression } from '../../api'
 import styled from 'styled-components'
 import { colors } from '../../ui/variables'
@@ -46,6 +47,10 @@ class Calculator extends Component {
     error: ""
   }
 
+  static defaultProps = {
+    saveCalc: () => {}
+  }
+
   // ref to expression input to use when moving caret
   expressionInput = React.createRef()
 
@@ -86,6 +91,11 @@ class Calculator extends Component {
     }
   }
 
+  saveResult = () => {
+    const { expression, result } = this.state
+    this.props.saveCalc(expression, result)
+  }
+
   evalExpression = (pos) => {
     // clean expression
     const cleanExpression = this.state.expression
@@ -101,13 +111,19 @@ class Calculator extends Component {
           this.setState({ result: res.data.result, error: "" })
         })
         .catch(err => this.setState({ error: "Invalid expression" }))
-        .finally(() => setCaretPosition(this.expressionInput.current, pos, true))
+        .finally(() => {
+          setCaretPosition(this.expressionInput.current, pos, true)
+          this.saveResult()
+        })
     } else {
       try {
         const result = eval(cleanExpression)
         this.setState(
           { result, error: "" },
-          () => setCaretPosition(this.expressionInput.current, pos, true)
+          () => {
+            setCaretPosition(this.expressionInput.current, pos, true)
+            this.saveResult()
+          }
         )
       } catch(e) {
         if (e instanceof SyntaxError) {
@@ -139,36 +155,56 @@ class Calculator extends Component {
     }
   }
 
+  onRecentClick = (expression, result) => {
+    this.setState(
+      { expression, result },
+      () => this.expressionInput.current.focus()
+    )
+  }
+
   render() {
-    const { className } = this.props
+    const { className, recent } = this.props
     const { error, expression, result } = this.state
     return (
-      <div className={className}>
-        { error && <span className="error">{ error }</span> }
-        <Screen
-          expression={expression}
-          result={result}
-          expressionRef={this.expressionInput}
-          onExpressionChange={this.onExpressionChange}
-          onExpressionKeyPress={this.onExpressionKeyPress}
-        />
-        { buttons.map(button => (
-          <Button
-            key={button.text}
-            cols={button.cols}
-            className={button.className}
-            onClick={() => this.handleInputExpression(button.text)}
-          >
-            { button.text }
-          </Button>
-        )) }
-      </div>
+      <div className="container">
+          <div className="recent-calc">
+            <h2>Recent Calculations</h2>
+            <RecentList
+              recent={recent}
+              handleClick={this.onRecentClick}
+            />
+          </div>
+          <div className="calc-container">
+            <div className={className}>
+              { error && <span className="error">{ error }</span> }
+              <Screen
+                expression={expression}
+                result={result}
+                expressionRef={this.expressionInput}
+                onExpressionChange={this.onExpressionChange}
+                onExpressionKeyPress={this.onExpressionKeyPress}
+              />
+              { buttons.map(button => (
+                <Button
+                  key={button.text}
+                  cols={button.cols}
+                  className={button.className}
+                  onClick={() => this.handleInputExpression(button.text)}
+                >
+                  { button.text }
+                </Button>
+              )) }
+            </div>
+          </div>
+        </div>
     )
   }
 }
 
 Calculator.propTypes = {
-  evalOnServer: PropTypes.bool.isRequired
+  evalOnServer: PropTypes.bool.isRequired,
+  saveCalc: PropTypes.func.isRequired,
+  recent: PropTypes.arrayOf(PropTypes.object).isRequired,
 }
 
 export default styled(Calculator)`
