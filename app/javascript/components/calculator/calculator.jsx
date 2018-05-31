@@ -9,28 +9,31 @@ const buttons = [
   { text: ")", cols: 1 },
   { text: "<", cols: 1 },
   { text: ">", cols: 1 },
-  { text: "AC", cols: 1 },
-  { text: "⌫", cols: 1 },
+  { text: "AC", cols: 1, input: "" },
+  { text: "⌫", cols: 1, input: "" },
   { text: "√", cols: 1 },
   { text: "^", cols: 1 },
   { text: "7", cols: 1 },
   { text: "8", cols: 1 },
   { text: "9", cols: 1 },
-  { text: "÷", cols: 1 },
+  { text: "÷", cols: 1, input: "\/÷" },
   { text: "4", cols: 1 },
   { text: "5", cols: 1 },
   { text: "6", cols: 1 },
-  { text: "×", cols: 1 },
+  { text: "×", cols: 1, input: "*×" },
   { text: "1", cols: 1 },
   { text: "2", cols: 1 },
   { text: "3", cols: 1 },
-  { text: "-", cols: 1 },
+  { text: "-", cols: 1, input: "\\-" },
   { text: "0", cols: 1 },
-  { text: "00", cols: 1 },
+  { text: "00", cols: 1, input: "" },
   { text: ".", cols: 1 },
   { text: "+", cols: 1 },
   { text: "=", cols: 4, className: "equals"}
 ]
+
+const PERMITTED_KEYS_REGEX =
+  new RegExp(`[^${buttons.map(b => b.input == null ? b.text : b.input).join('')}]`, 'g')
 
 const SPECIAL_OPS = ["AC", "=", "⌫", "<", ">"]
 
@@ -112,13 +115,31 @@ class Calculator extends Component {
     )
   }
 
+  onExpressionChange = (e) => {
+    if (e.target.value.match(PERMITTED_KEYS_REGEX) == null)
+      this.setState({ expression: e.target.value.replace(/\//g, "÷").replace(/\*/g, "×") })
+  }
+
+  onExpressionKeyPress = (e) => {
+    if (e.key === "Enter") {
+      const currentPos = e.target.selectionStart
+      this.handleSpecialOp("=", currentPos)
+    }
+  }
+
   render() {
     const { className } = this.props
     const { error, expression, result } = this.state
     return (
       <div className={className}>
         { error && <span className="error">{ error }</span> }
-        <Screen expression={expression} result={result} expressionRef={this.expressionInput} />
+        <Screen
+          expression={expression}
+          result={result}
+          expressionRef={this.expressionInput}
+          onExpressionChange={this.onExpressionChange}
+          onExpressionKeyPress={this.onExpressionKeyPress}
+        />
         { buttons.map(button => (
           <Button
             key={button.text}

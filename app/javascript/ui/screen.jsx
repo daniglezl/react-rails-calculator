@@ -28,11 +28,28 @@ const ResultInput = Input.extend`
 `
 
 class UnstyledScreen extends Component {
+  static defaultProps = {
+    onExpressionChange: () => {},
+    onExpressionKeyPress: () => {}
+  }
+
   render() {
-    const { className, expression, result, expressionRef } = this.props
+    const {
+      className,
+      expression,
+      result,
+      expressionRef,
+      onExpressionChange,
+      onExpressionKeyPress
+    } = this.props
     return (
       <div className={className}>
-        <ExpressionInput value={expression} innerRef={expressionRef} />
+        <ExpressionInput
+          value={expression}
+          innerRef={expressionRef}
+          onChange={onExpressionChange}
+          onKeyPress={onExpressionKeyPress}
+        />
         <ResultInput value={result} />
       </div>
     )
@@ -41,7 +58,10 @@ class UnstyledScreen extends Component {
 
 UnstyledScreen.propTypes = {
   expression: PropTypes.string.isRequired,
-  result: PropTypes.number.isRequired
+  result: PropTypes.number.isRequired,
+  expressionRef:  PropTypes.object,
+  onExpressionChange: PropTypes.func.isRequired,
+  onExpressionKeyPress: PropTypes.func.isRequired
 }
 
 export const Screen = styled(UnstyledScreen)`
