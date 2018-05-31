@@ -6,5 +6,6 @@ export const colors = {
   darkBg: "#263238",
   lightBg: "#EDE7F6",
   border: "#37474F",
-  danger: "#F44336"
+  danger: "#F44336",
+  lightGray: "#E0E0E0"
 }
