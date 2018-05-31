@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import { getEvalExpression } from '../../api'
 import styled from 'styled-components'
 import { colors } from '../../ui/variables'
 import { Button, Screen } from '../../ui'
@@ -85,25 +87,35 @@ class Calculator extends Component {
   }
 
   evalExpression = (pos) => {
-    try {
-      // clean expression
-      const cleanExpression = this.state.expression
-        .replace(/√\(/g, "Math.sqrt(")
-        .replace(/√([0-9]+)/g, "Math.sqrt($1)")
-        .replace(/÷/g, "/")
-        .replace(/×/g, "*")
-        .replace(/\^/g, "**")
-      const result = eval(cleanExpression)
-      this.setState(
-        { result, error: "" },
-        () => setCaretPosition(this.expressionInput.current, pos, true)
-      )
-    } catch(e) {
-      if (e instanceof SyntaxError) {
-        this.setState({ error: "Invalid expression" })
-      } else {
-        console.log(e)
-        this.setState({ error: "An error ocurred" })
+    // clean expression
+    const cleanExpression = this.state.expression
+      .replace(/√\(/g, "Math.sqrt(")
+      .replace(/√([0-9]+)/g, "Math.sqrt($1)")
+      .replace(/÷/g, "/")
+      .replace(/×/g, "*")
+      .replace(/\^/g, "**")
+
+    if (this.props.evalOnServer) {
+      getEvalExpression(cleanExpression)
+        .then(res => {
+          this.setState({ result: res.data.result, error: "" })
+        })
+        .catch(err => this.setState({ error: "Invalid expression" }))
+        .finally(() => setCaretPosition(this.expressionInput.current, pos, true))
+    } else {
+      try {
+        const result = eval(cleanExpression)
+        this.setState(
+          { result, error: "" },
+          () => setCaretPosition(this.expressionInput.current, pos, true)
+        )
+      } catch(e) {
+        if (e instanceof SyntaxError) {
+          this.setState({ error: "Invalid expression" })
+        } else {
+          console.log(e)
+          this.setState({ error: "An error ocurred" })
+        }
       }
     }
   }
@@ -153,6 +165,10 @@ class Calculator extends Component {
       </div>
     )
   }
+}
+
+Calculator.propTypes = {
+  evalOnServer: PropTypes.bool.isRequired
 }
 
 export default styled(Calculator)`

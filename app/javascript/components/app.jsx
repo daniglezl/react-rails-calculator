@@ -21,7 +21,7 @@ class App extends Component {
           className="server-switch"
         />
         <div className="container">
-          <Calculator />
+          <Calculator evalOnServer={this.state.evalInServer}/>
         </div>
       </div>
     )
