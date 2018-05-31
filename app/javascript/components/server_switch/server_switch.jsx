@@ -4,14 +4,10 @@ import styled from 'styled-components'
 import { colors } from '../../ui/variables'
 import { Switch } from '../../ui'
 
-const H4 = styled.h4`
-  color: ${ colors.darkText };
-`
-
 const ServerSwitch = ({ on, className, handleSwitch }) => (
   <div className={className} style={{textAlign: "center"}}>
-    <H4>Evaluate on server</H4>
-    <Switch on={on} onClick={handleSwitch}/>
+    <h4>Evaluate on server</h4>
+    <Switch on={on} onClick={handleSwitch} className="switch" />
   </div>
 )
 
@@ -20,4 +16,11 @@ ServerSwitch.propTypes = {
   handleSwitch: PropTypes.func.isRequired
 }
 
-export default ServerSwitch
+export default styled(ServerSwitch)`
+  h4 {
+    float: left;
+    margin: 0 10px;
+    line-height: 45px;
+  }
+  .switch { float: left; }
+`

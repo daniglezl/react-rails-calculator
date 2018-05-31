@@ -7,7 +7,7 @@ const Div = styled.div`
   margin: 15px;
   padding: 10px;
   text-align: left;
-  overflow: hidden;
+  word-wrap: break-word;
   transition: all .2s ease-in-out;
   cursor: pointer;
   &:hover {

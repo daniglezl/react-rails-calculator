@@ -109,11 +109,13 @@ class Calculator extends Component {
       getEvalExpression(cleanExpression)
         .then(res => {
           this.setState({ result: res.data.result, error: "" })
+          this.saveResult()
         })
-        .catch(err => this.setState({ error: "Invalid expression" }))
+        .catch(err => {
+          this.setState({ error: err.response.data.error })
+        })
         .finally(() => {
           setCaretPosition(this.expressionInput.current, pos, true)
-          this.saveResult()
         })
     } else {
       try {
@@ -126,12 +128,7 @@ class Calculator extends Component {
           }
         )
       } catch(e) {
-        if (e instanceof SyntaxError) {
-          this.setState({ error: "Invalid expression" })
-        } else {
-          console.log(e)
-          this.setState({ error: "An error ocurred" })
-        }
+        this.setState({ error: "Invalid expression" })
       }
     }
   }
@@ -166,37 +163,38 @@ class Calculator extends Component {
     const { className, recent } = this.props
     const { error, expression, result } = this.state
     return (
-      <div className="container">
-          <div className="recent-calc">
-            <h2>Recent Calculations</h2>
-            <RecentList
-              recent={recent}
-              handleClick={this.onRecentClick}
+      <div className={className}>
+        <div className="recent-calc">
+          <h2>Recent Calculations</h2>
+          <RecentList
+            recent={recent}
+            handleClick={this.onRecentClick}
+          />
+        </div>
+        <div className="calc-container">
+          <h1 className="header">React/Rails Calculator</h1>
+          <div className="calculator">
+            { error && <span className="error">{ error }</span> }
+            <Screen
+              expression={expression}
+              result={result}
+              expressionRef={this.expressionInput}
+              onExpressionChange={this.onExpressionChange}
+              onExpressionKeyPress={this.onExpressionKeyPress}
             />
-          </div>
-          <div className="calc-container">
-            <div className={className}>
-              { error && <span className="error">{ error }</span> }
-              <Screen
-                expression={expression}
-                result={result}
-                expressionRef={this.expressionInput}
-                onExpressionChange={this.onExpressionChange}
-                onExpressionKeyPress={this.onExpressionKeyPress}
-              />
-              { buttons.map(button => (
-                <Button
-                  key={button.text}
-                  cols={button.cols}
-                  className={button.className}
-                  onClick={() => this.handleInputExpression(button.text)}
-                >
-                  { button.text }
-                </Button>
-              )) }
-            </div>
+            { buttons.map(button => (
+              <Button
+                key={button.text}
+                cols={button.cols}
+                className={button.className}
+                onClick={() => this.handleInputExpression(button.text)}
+              >
+                { button.text }
+              </Button>
+            )) }
           </div>
         </div>
+      </div>
     )
   }
 }
@@ -208,23 +206,51 @@ Calculator.propTypes = {
 }
 
 export default styled(Calculator)`
-  position: relative;
-  max-width: 200px;
-  background: ${ colors.darkBg };
-  > .error {
-    box-sizing: border-box;
-    position: absolute;
-    top: -30px;
-    height: 25px;
-    line-height: 25px;
-    background-color: ${ colors.danger };
-    font-size: 12px;
-    font-weight: bold;
-    color: ${ colors.lightText };
-    width: 100%;
-    padding: 0 5px;
+  display: flex;
+  height: 100%;
+  background-color: ${ colors.lightBg };
+  > .recent-calc {
+    flex: 1;
+    min-width:0;
+    height: 100%;
+    background-color: ${ colors.secondary };
+    text-align: center;
+    > h2 { color: ${ colors.darkText }; }
   }
-  > button.equals {
-    background-image: linear-gradient(to bottom right, ${ colors.secondary }, ${ colors.primary });
+  > .calc-container {
+    flex: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    > .header {
+      color: ${ colors.darkText }
+      position: absolute;
+      top: 0;
+    }
+    > .calculator {
+      position: relative;
+      max-width: 200px;
+      background: ${ colors.darkBg };
+      > .error {
+        box-sizing: border-box;
+        position: absolute;
+        top: -30px;
+        height: 25px;
+        line-height: 25px;
+        background-color: ${ colors.danger };
+        font-size: 12px;
+        font-weight: bold;
+        color: ${ colors.lightText };
+        width: 100%;
+        padding: 0 5px;
+      }
+      > button.equals {
+        background-image: linear-gradient(to bottom right, ${ colors.secondary }, ${ colors.primary });
+      }
+    }
+  }
+  @media (max-width: 980px) {
+    > .recent-calc { display: none; }
   }
 `

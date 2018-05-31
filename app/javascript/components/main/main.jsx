@@ -47,27 +47,11 @@ class Main extends Component {
 }
 
 export default styled(Main)`
+  height: 100%;
   .server-switch {
     position: absolute;
     bottom: 1em;
     right: 1em;
-  }
-  .container {
-    display: flex;
-    height: 100vh;
-    background-color: ${ colors.lightBg };
-    > .recent-calc {
-      flex: 1;
-      height: 100vh;
-      background-color: ${ colors.secondary };
-      text-align: center;
-      > h2 { color: ${ colors.darkText }; }
-    }
-    > .calc-container {
-      flex: 3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    z-index: 100;
   }
 `
