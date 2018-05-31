@@ -5,31 +5,31 @@ import { Button, Screen } from '../../ui'
 import { setCaretPosition } from '../../lib/util'
 
 const buttons = [
-  { text: "(", value: "(", cols: 1 },
-  { text: ")", value: ")", cols: 1 },
-  { text: "<", value: "<", cols: 1 },
-  { text: ">", value: ">", cols: 1 },
-  { text: "AC", value: "AC", cols: 1 },
-  { text: "⌫", value: "⌫", cols: 1 },
-  { text: "√", value: "√", cols: 1 },
-  { text: "^", value: "^", cols: 1 },
-  { text: "7", value: "7", cols: 1 },
-  { text: "8", value: "8", cols: 1 },
-  { text: "9", value: "9", cols: 1 },
-  { text: "÷", value: "÷", cols: 1 },
-  { text: "4", value: "4", cols: 1 },
-  { text: "5", value: "5", cols: 1 },
-  { text: "6", value: "6", cols: 1 },
-  { text: "×", value: "×", cols: 1 },
-  { text: "1", value: "1", cols: 1 },
-  { text: "2", value: "2", cols: 1 },
-  { text: "3", value: "3", cols: 1 },
-  { text: "-", value: "-", cols: 1 },
-  { text: "0", value: "0", cols: 1 },
-  { text: "00", value: "00", cols: 1 },
-  { text: ".", value: ".", cols: 1 },
-  { text: "+", value: "+", cols: 1 },
-  { text: "=", value: "=", cols: 4, className: "equals"}
+  { text: "(", cols: 1 },
+  { text: ")", cols: 1 },
+  { text: "<", cols: 1 },
+  { text: ">", cols: 1 },
+  { text: "AC", cols: 1 },
+  { text: "⌫", cols: 1 },
+  { text: "√", cols: 1 },
+  { text: "^", cols: 1 },
+  { text: "7", cols: 1 },
+  { text: "8", cols: 1 },
+  { text: "9", cols: 1 },
+  { text: "÷", cols: 1 },
+  { text: "4", cols: 1 },
+  { text: "5", cols: 1 },
+  { text: "6", cols: 1 },
+  { text: "×", cols: 1 },
+  { text: "1", cols: 1 },
+  { text: "2", cols: 1 },
+  { text: "3", cols: 1 },
+  { text: "-", cols: 1 },
+  { text: "0", cols: 1 },
+  { text: "00", cols: 1 },
+  { text: ".", cols: 1 },
+  { text: "+", cols: 1 },
+  { text: "=", cols: 4, className: "equals"}
 ]
 
 const SPECIAL_OPS = ["AC", "=", "⌫", "<", ">"]
@@ -48,16 +48,16 @@ class Calculator extends Component {
     this.expressionInput.current.focus()
   }
 
-  handleInputExpression = (value) => {
+  handleInputExpression = (text) => {
     const currentPos = this.expressionInput.current.selectionStart
-    SPECIAL_OPS.indexOf(value) > -1 ?
-      this.handleSpecialOp(value, currentPos) :
-      this.addToExpression(value, currentPos)
+    SPECIAL_OPS.indexOf(text) > -1 ?
+      this.handleSpecialOp(text, currentPos) :
+      this.addToExpression(text, currentPos)
   }
 
   // handle input of operators that don't write to screen
-  handleSpecialOp = (value, pos) => {
-    switch (value) {
+  handleSpecialOp = (text, pos) => {
+    switch (text) {
       case SPECIAL_OPS[0]: // clear
         this.setState({ expression: "", result: 0, error: "" })
         break
@@ -124,7 +124,7 @@ class Calculator extends Component {
             key={button.text}
             cols={button.cols}
             className={button.className}
-            onClick={() => this.handleInputExpression(button.value)}
+            onClick={() => this.handleInputExpression(button.text)}
           >
             { button.text }
           </Button>
