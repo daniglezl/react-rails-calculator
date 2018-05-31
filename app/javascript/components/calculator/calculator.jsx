@@ -2,22 +2,25 @@ import React, { Component } from 'react'
 import styled from 'styled-components'
 import { colors } from '../../ui/variables'
 import { Button, Screen } from '../../ui'
+import { setCaretPosition } from '../../lib/util'
 
 const buttons = [
-  { text: "(", value: "(", cols: 2 },
-  { text: ")", value: ")", cols: 2 },
+  { text: "(", value: "(", cols: 1 },
+  { text: ")", value: ")", cols: 1 },
+  { text: "<", value: "<", cols: 1 },
+  { text: ">", value: ">", cols: 1 },
   { text: "AC", value: "AC", cols: 1 },
-  { text: "<-", value: "<-", cols: 1 },
-  { text: "sqrt", value: "sqrt(", cols: 1 },
+  { text: "⌫", value: "⌫", cols: 1 },
+  { text: "√", value: "√", cols: 1 },
   { text: "^", value: "^", cols: 1 },
   { text: "7", value: "7", cols: 1 },
   { text: "8", value: "8", cols: 1 },
   { text: "9", value: "9", cols: 1 },
-  { text: "/", value: "/", cols: 1 },
+  { text: "÷", value: "÷", cols: 1 },
   { text: "4", value: "4", cols: 1 },
   { text: "5", value: "5", cols: 1 },
   { text: "6", value: "6", cols: 1 },
-  { text: "*", value: "*", cols: 1 },
+  { text: "×", value: "×", cols: 1 },
   { text: "1", value: "1", cols: 1 },
   { text: "2", value: "2", cols: 1 },
   { text: "3", value: "3", cols: 1 },
@@ -29,43 +32,69 @@ const buttons = [
   { text: "=", value: "=", cols: 4, className: "equals"}
 ]
 
-const SPECIAL_OPS = ["AC", "=", "<-"]
+const SPECIAL_OPS = ["AC", "=", "⌫", "<", ">"]
 
 class Calculator extends Component {
   state = {
-    expression: [],
+    expression: "",
     result: 0,
     error: ""
   }
 
+  // ref to expression input to use when moving caret
+  expressionInput = React.createRef()
+
+  componentDidMount() {
+    this.expressionInput.current.focus()
+  }
+
   handleInputExpression = (value) => {
+    const currentPos = this.expressionInput.current.selectionStart
     SPECIAL_OPS.indexOf(value) > -1 ?
-      this.handleSpecialOp(value) :
-      this.addToExpression(value)
+      this.handleSpecialOp(value, currentPos) :
+      this.addToExpression(value, currentPos)
   }
 
   // handle input of operators that don't write to screen
-  handleSpecialOp = (value) => {
+  handleSpecialOp = (value, pos) => {
     switch (value) {
       case SPECIAL_OPS[0]: // clear
-        this.setState({ expression: [], result: 0, error: "" })
+        this.setState({ expression: "", result: 0, error: "" })
         break
       case SPECIAL_OPS[1]: // evaluate expression
-        this.evalExpression()
+        this.evalExpression(pos)
         break
       case SPECIAL_OPS[2]: // backspace
-        this.setState(state => ({ expression: state.expression.slice(0, -1) }))
+        this.setState(
+          ({ expression }) => ({ expression: [expression.slice(0, pos - 1), expression.slice(pos)].join('') }),
+          () => setCaretPosition(this.expressionInput.current, pos - 1, true)
+        )
+        break
+      case SPECIAL_OPS[3]: // move caret to left
+        setCaretPosition(this.expressionInput.current, -1)
+        break
+      case SPECIAL_OPS[4]: // move caret to right
+        setCaretPosition(this.expressionInput.current, 1)
         break
       default:
         throw new Error("Unrecognized operation")
     }
   }
 
-  evalExpression = () => {
+  evalExpression = (pos) => {
     try {
-      // replace sqrt with Math.sqrt for it to be a correct expression
-      const result = eval(this.state.expression.join('').replace(/sqrt/g, "Math.sqrt"))
-      this.setState({ result, error: "" })
+      // clean expression
+      const cleanExpression = this.state.expression
+        .replace(/√\(/g, "Math.sqrt(")
+        .replace(/√([0-9]+)/g, "Math.sqrt($1)")
+        .replace(/÷/g, "/")
+        .replace(/×/g, "*")
+        .replace(/\^/g, "**")
+      const result = eval(cleanExpression)
+      this.setState(
+        { result, error: "" },
+        () => setCaretPosition(this.expressionInput.current, pos, true)
+      )
     } catch(e) {
       if (e instanceof SyntaxError) {
         this.setState({ error: "Invalid expression" })
@@ -76,8 +105,11 @@ class Calculator extends Component {
     }
   }
 
-  addToExpression = (text) => {
-    this.setState((state) => ({ expression: [...state.expression, text] }))
+  addToExpression = (text, pos) => {
+    this.setState(
+      ({ expression }) => ({ expression: [expression.slice(0, pos), text, expression.slice(pos)].join('') }),
+      () => setCaretPosition(this.expressionInput.current, pos + text.length, true)
+    )
   }
 
   render() {
@@ -86,7 +118,7 @@ class Calculator extends Component {
     return (
       <div className={className}>
         { error && <span className="error">{ error }</span> }
-        <Screen expression={expression.join('')} result={result} />
+        <Screen expression={expression} result={result} expressionRef={this.expressionInput} />
         { buttons.map(button => (
           <Button
             key={button.text}

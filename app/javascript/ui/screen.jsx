@@ -29,10 +29,10 @@ const ResultInput = Input.extend`
 
 class UnstyledScreen extends Component {
   render() {
-    const { className, expression, result } = this.props
+    const { className, expression, result, expressionRef } = this.props
     return (
       <div className={className}>
-        <ExpressionInput value={expression} />
+        <ExpressionInput value={expression} innerRef={expressionRef} />
         <ResultInput value={result} />
       </div>
     )
